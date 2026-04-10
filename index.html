@@ -157,7 +157,7 @@
         e.preventDefault();
         const userVal = document.getElementById('register-username').value;
         const passVal = document.getElementById('register-password').value;
-        const email = userVal + "@dummy.com"; 
+        const email = userVal.trim(); 
 
         const { data, error } = await supabaseClient.auth.signUp({ email, password: passVal });
         if (error) return alert(error.message);
@@ -169,7 +169,7 @@
 
     document.getElementById('login-form').onsubmit = async (e) => {
         e.preventDefault();
-        const email = document.getElementById('login-username').value + "@dummy.com";
+        const email = document.getElementById('login-username').value.trim();
         const password = document.getElementById('login-password').value;
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) return alert('账号或密码错误');
