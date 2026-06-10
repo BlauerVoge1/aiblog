@@ -107,6 +107,16 @@ a:hover { text-decoration: underline; }
 .token-bar input { padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; width: 300px; max-width: 60%; font-size: .85rem; }
 .token-bar .btn { padding: 4px 10px; font-size: .8rem; margin-left: 6px; }
 
+/* User badge */
+.user-badge { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; padding: 4px 10px; border-radius: var(--radius); background: #e8f0fe; cursor: pointer; }
+.user-badge .avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 600; }
+
+/* Login modal */
+.login-modal .tabs { margin-bottom: 16px; }
+.login-modal .tab-content { display: none; }
+.login-modal .tab-content.active { display: block; }
+.login-modal input { margin-bottom: 8px; }
+
 /* Tabs */
 .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
 .tab { padding: 8px 16px; cursor: pointer; border: none; background: none; font-size: .9rem; color: var(--text-light); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .2s; }
@@ -141,7 +151,12 @@ a:hover { text-decoration: underline; }
     <h1 onclick="showList()">blauer<span>vogel</span></h1>
     <div class="header-actions">
       <span id="admin-indicator" style="display:none;font-size:.78rem;color:#27ae60;">admin</span>
-      <button class="btn btn-sm" id="token-btn" onclick="showTokenBar()">设置 Token</button>
+      <span id="user-badge" class="user-badge" style="display:none;" onclick="showLoginModal()" title="点击切换账号">
+        <span class="avatar" id="user-avatar">?</span>
+        <span id="user-name-display"></span>
+      </span>
+      <button class="btn btn-sm" id="login-btn" onclick="showLoginModal()">登录</button>
+      <button class="btn btn-sm" id="token-btn" onclick="showTokenBar()">管理</button>
       <button class="btn btn-primary btn-sm" id="new-post-btn" style="display:none;" onclick="showEditor()">写文章</button>
       <button class="btn btn-sm" onclick="location.reload()">刷新</button>
     </div>
@@ -176,8 +191,38 @@ a:hover { text-decoration: underline; }
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/marked@11/marked.min.js"></script>
-<script>
+<!-- Login Modal -->
+<div class="modal-overlay login-modal" id="login-modal">
+  <div class="modal" style="max-width:400px;">
+    <div class="tabs">
+      <button class="tab active" onclick="switchLoginTab('login')">登录</button>
+      <button class="tab" onclick="switchLoginTab('register')">注册</button>
+    </div>
+    <div class="tab-content active" id="tab-login">
+      <label>昵称</label>
+      <input type="text" id="login-nickname" placeholder="输入你的昵称...">
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn" onclick="closeLoginModal()">取消</button>
+        <button class="btn btn-primary" onclick="doLogin()">登录</button>
+      </div>
+      <p style="font-size:.8rem;color:var(--text-light);margin-top:8px;">输入昵称即可登录，无需密码</p>
+    </div>
+    <div class="tab-content" id="tab-register">
+      <label>新昵称</label>
+      <input type="text" id="register-nickname" placeholder="起一个昵称...">
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn" onclick="closeLoginModal()">取消</button>
+        <button class="btn btn-primary" onclick="doRegister()">注册</button>
+      </div>
+      <p style="font-size:.8rem;color:var(--text-light);margin-top:8px;">注册后即可发表评论</p>
+    </div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+      <p style="font-size:.78rem;color:var(--text-light);margin-bottom:6px;">管理员登录</p>
+      <input type="password" id="login-token" placeholder="输入 GitHub Token...">
+      <button class="btn btn-primary btn-sm" style="margin-top:6px;width:100%;" onclick="doAdminLogin()">管理员登录</button>
+    </div>
+  </div>
+</div>
 const OWNER = 'BlauerVoge1';
 const REPO = 'aiblog';
 const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
@@ -192,6 +237,10 @@ let editingId = null;
 
 function getToken() { return localStorage.getItem('gh_token') || ''; }
 function isAdmin() { return !!getToken(); }
+function getNickname() { return localStorage.getItem('aiblog_nickname') || ''; }
+function isLoggedIn() { return !!getNickname() || isAdmin(); }
+function getDisplayName() { return isAdmin() ? '管理员' : getNickname(); }
+
 function headers() {
   const t = getToken();
   const h = { 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
@@ -209,9 +258,28 @@ function getParam(name) {
 
 function updateAdminUI() {
   const admin = isAdmin();
+  const nick = getNickname();
   document.getElementById('new-post-btn').style.display = admin ? '' : 'none';
   document.getElementById('admin-indicator').style.display = admin ? '' : 'none';
-  document.getElementById('token-btn').textContent = admin ? 'Token ✓' : '设置 Token';
+  document.getElementById('token-btn').textContent = admin ? '管理 ✓' : '管理';
+
+  // User badge
+  const badge = document.getElementById('user-badge');
+  const loginBtn = document.getElementById('login-btn');
+  if (admin) {
+    badge.style.display = 'inline-flex';
+    loginBtn.style.display = 'none';
+    document.getElementById('user-avatar').textContent = 'A';
+    document.getElementById('user-name-display').textContent = '管理员';
+  } else if (nick) {
+    badge.style.display = 'inline-flex';
+    loginBtn.style.display = 'none';
+    document.getElementById('user-avatar').textContent = nick.charAt(0).toUpperCase();
+    document.getElementById('user-name-display').textContent = nick;
+  } else {
+    badge.style.display = 'none';
+    loginBtn.style.display = '';
+  }
 }
 
 function showTokenBar() {
@@ -234,6 +302,70 @@ function clearToken() {
   localStorage.removeItem('gh_token');
   document.getElementById('token-input').value = '';
   updateAdminUI();
+  if (currentIssue) showPost(currentIssue.number);
+  else showList();
+}
+
+// ==================== Login / Register ====================
+
+function showLoginModal() {
+  document.getElementById('login-nickname').value = getNickname();
+  document.getElementById('register-nickname').value = '';
+  document.getElementById('login-token').value = '';
+  switchLoginTab('login');
+  document.getElementById('login-modal').classList.add('active');
+}
+
+function closeLoginModal() {
+  document.getElementById('login-modal').classList.remove('active');
+}
+
+function switchLoginTab(tab) {
+  document.querySelectorAll('#login-modal .tab').forEach((t, i) => {
+    t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+  });
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+}
+
+function doLogin() {
+  const nick = document.getElementById('login-nickname').value.trim();
+  if (!nick) { alert('请输入昵称'); return; }
+  localStorage.setItem('aiblog_nickname', nick);
+  closeLoginModal();
+  updateAdminUI();
+  refreshCurrent();
+}
+
+function doRegister() {
+  const nick = document.getElementById('register-nickname').value.trim();
+  if (!nick) { alert('请输入昵称'); return; }
+  if (nick.length < 2) { alert('昵称至少 2 个字符'); return; }
+  localStorage.setItem('aiblog_nickname', nick);
+  closeLoginModal();
+  updateAdminUI();
+  refreshCurrent();
+}
+
+function doAdminLogin() {
+  const token = document.getElementById('login-token').value.trim();
+  if (!token) { alert('请输入 Token'); return; }
+  localStorage.setItem('gh_token', token);
+  closeLoginModal();
+  updateAdminUI();
+  refreshCurrent();
+}
+
+function doLogout() {
+  if (confirm('确定退出登录？')) {
+    localStorage.removeItem('aiblog_nickname');
+    localStorage.removeItem('gh_token');
+    updateAdminUI();
+    refreshCurrent();
+  }
+}
+
+function refreshCurrent() {
   if (currentIssue) showPost(currentIssue.number);
   else showList();
 }
@@ -332,13 +464,23 @@ async function addComment(number) {
   const body = input.value.trim();
   if (!body) return;
 
-  const token = getToken();
-  if (!token) { alert('请先设置 Token 才能评论'); return; }
+  const nick = getNickname();
+  if (!nick && !isAdmin()) { alert('请先登录（设置昵称）才能评论'); showLoginModal(); return; }
+
+  const displayName = isAdmin() ? '管理员' : nick;
+  const commentBody = `**${displayName}**：${body}`;
 
   try {
+    const token = getToken();
+    // 访客评论需要管理员 Token；如果没有，提示先设 Token 或只能用昵称
+    if (!token) {
+      // 没有 Token 的情况：访客只能看不能评
+      alert('评论功能需要管理员开启。请联系站长设置 GitHub Token。');
+      return;
+    }
     const r = await fetch(`${API}/issues/${number}/comments`, {
       method: 'POST', headers: headers(),
-      body: JSON.stringify({ body })
+      body: JSON.stringify({ body: commentBody })
     });
     if (!r.ok) throw new Error('Comment failed');
     input.value = '';
@@ -471,8 +613,9 @@ async function renderPost(issue, comments) {
 
   html += `
       <div class="comment-form">
-        <input type="text" id="comment-input" placeholder="写下你的评论...">
-        <button class="btn btn-primary btn-sm" onclick="addComment(${issue.number})">发送</button>
+        <input type="text" id="comment-input" placeholder="${isLoggedIn() ? '写下你的评论...' : '请先登录再评论'}">
+        <button class="btn btn-primary btn-sm" onclick="addComment(${issue.number})" ${isLoggedIn() ? '' : 'disabled'}>发送</button>
+        ${!isLoggedIn() ? '<button class="btn btn-sm" onclick="showLoginModal()" style="margin-left:4px;">登录</button>' : ''}
       </div>
     </div>`;
 
@@ -578,6 +721,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('editor-modal').addEventListener('click', function(e) {
     if (e.target === this) closeEditor();
   });
+  document.getElementById('login-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeLoginModal();
+  });
 
   // Route on load
   const pId = getParam('p');
@@ -590,7 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Close modal on Escape
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeEditor();
+  if (e.key === 'Escape') { closeEditor(); closeLoginModal(); }
 });
 
 // Handle back/forward
