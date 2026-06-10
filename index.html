@@ -394,6 +394,16 @@ function onRegisterQQChange() {
   }
 }
 
+function cloudbaseError(e) {
+  if (!e) return '未知错误';
+  if (typeof e === 'string') return e;
+  if (e.message) return e.message;
+  if (e.error) return cloudbaseError(e.error);
+  if (e.code) return e.code;
+  if (e.errMsg) return e.errMsg;
+  return JSON.stringify(e);
+}
+
 async function doLogin() {
   const username = document.getElementById('login-username').value.trim();
   const password = document.getElementById('login-password').value.trim();
@@ -404,15 +414,18 @@ async function doLogin() {
   const btn = document.getElementById('login-submit');
   btn.disabled = true; btn.textContent = '登录中...';
   try {
-    console.log('[Login] Attempting login for:', username);
-    await tcbAuth.signIn({ username, password });
-    console.log('[Login] Success');
+    console.log('[Login] Attempting for:', username);
+    const result = await tcbAuth.signInWithPassword({ username, password });
+    console.log('[Login] Result:', result);
+    if (result && result.error) throw result.error;
+    if (!tcbAuth.currentUser) throw { message: '登录未生效，请重试' };
+    console.log('[Login] OK, currentUser:', tcbAuth.currentUser.username);
     closeLoginModal();
     updateAdminUI();
     refreshCurrent();
   } catch (e) {
     console.error('[Login] Error:', e);
-    alert('登录失败: ' + (e.message || e.code || String(e)));
+    alert('登录失败: ' + cloudbaseError(e));
   }
   btn.disabled = false; btn.textContent = '登录';
 }
@@ -434,10 +447,18 @@ async function doRegister() {
   const btn = document.getElementById('register-submit');
   btn.disabled = true; btn.textContent = '注册中...';
   try {
-    await tcbAuth.signUp({ username, password });
-    // signUp auto-logs in on some SDK versions; signIn as fallback
-    try { await tcbAuth.signIn({ username, password }); } catch {}
-    console.log('[Register] Success for:', username);
+    console.log('[Register] Attempting for:', username);
+    const regResult = await tcbAuth.signUp({ username, password });
+    console.log('[Register] signUp result:', regResult);
+    if (regResult && regResult.error) throw regResult.error;
+
+    // Auto login after registration
+    console.log('[Register] Auto-signing in...');
+    const loginResult = await tcbAuth.signInWithPassword({ username, password });
+    console.log('[Register] signIn result:', loginResult);
+    if (loginResult && loginResult.error) throw loginResult.error;
+
+    console.log('[Register] OK, currentUser:', tcbAuth.currentUser?.username);
     // Save QQ to localStorage for avatar
     const qq = document.getElementById('register-qq').value.trim();
     if (/^\d{5,11}$/.test(qq)) {
@@ -450,7 +471,7 @@ async function doRegister() {
     refreshCurrent();
   } catch (e) {
     console.error('[Register] Error:', e);
-    alert('注册失败: ' + (e.message || e.code || String(e)));
+    alert('注册失败: ' + cloudbaseError(e));
   }
   btn.disabled = false; btn.textContent = '注册';
 }
