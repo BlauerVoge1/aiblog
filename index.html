@@ -248,11 +248,20 @@ let tcbAuth = null;
 let tcbDb = null;
 
 // Init CloudBase
-try {
-  tcbApp = cloudbase.init({ env: TCB_ENV });
-  tcbAuth = tcbApp.auth({ persistence: 'local' });
-  tcbDb = tcbApp.database();
-} catch(e) { console.log('CloudBase init error:', e); }
+(function initTCB() {
+  try {
+    if (typeof cloudbase === 'undefined') {
+      console.warn('[TCB] CloudBase SDK not loaded');
+      return;
+    }
+    tcbApp = cloudbase.init({ env: TCB_ENV });
+    tcbAuth = tcbApp.auth({ persistence: 'local' });
+    tcbDb = tcbApp.database();
+    console.log('[TCB] Init OK');
+  } catch(e) {
+    console.error('[TCB] Init error:', e);
+  }
+})();
 
 let page = 1;
 let currentIssue = null;
@@ -395,12 +404,15 @@ async function doLogin() {
   const btn = document.getElementById('login-submit');
   btn.disabled = true; btn.textContent = '登录中...';
   try {
-    await tcbAuth.signInWithPassword({ username, password });
+    console.log('[Login] Attempting login for:', username);
+    await tcbAuth.signIn({ username, password });
+    console.log('[Login] Success');
     closeLoginModal();
     updateAdminUI();
     refreshCurrent();
   } catch (e) {
-    alert('登录失败: ' + (e.message || e));
+    console.error('[Login] Error:', e);
+    alert('登录失败: ' + (e.message || e.code || String(e)));
   }
   btn.disabled = false; btn.textContent = '登录';
 }
@@ -423,8 +435,9 @@ async function doRegister() {
   btn.disabled = true; btn.textContent = '注册中...';
   try {
     await tcbAuth.signUp({ username, password });
-    await tcbAuth.signInWithPassword({ username, password });
-
+    // signUp auto-logs in on some SDK versions; signIn as fallback
+    try { await tcbAuth.signIn({ username, password }); } catch {}
+    console.log('[Register] Success for:', username);
     // Save QQ to localStorage for avatar
     const qq = document.getElementById('register-qq').value.trim();
     if (/^\d{5,11}$/.test(qq)) {
@@ -436,7 +449,8 @@ async function doRegister() {
     updateAdminUI();
     refreshCurrent();
   } catch (e) {
-    alert('注册失败: ' + (e.message || e));
+    console.error('[Register] Error:', e);
+    alert('注册失败: ' + (e.message || e.code || String(e)));
   }
   btn.disabled = false; btn.textContent = '注册';
 }
