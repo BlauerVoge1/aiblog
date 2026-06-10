@@ -109,7 +109,8 @@ a:hover { text-decoration: underline; }
 
 /* User badge */
 .user-badge { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; padding: 4px 10px; border-radius: var(--radius); background: #e8f0fe; cursor: pointer; }
-.user-badge .avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 600; }
+.user-badge .avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 600; overflow: hidden; }
+.user-badge .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
 /* Login modal */
 .login-modal .tabs { margin-bottom: 16px; }
@@ -195,7 +196,8 @@ a:hover { text-decoration: underline; }
 <div class="modal-overlay login-modal" id="login-modal">
   <div class="modal" style="max-width:400px;">
     <div class="tabs">
-      <button class="tab active" onclick="switchLoginTab('login')">登录</button>
+      <button class="tab active" onclick="switchLoginTab('login')">昵称登录</button>
+      <button class="tab" onclick="switchLoginTab('qq')">QQ登录</button>
       <button class="tab" onclick="switchLoginTab('register')">注册</button>
     </div>
     <div class="tab-content active" id="tab-login">
@@ -206,6 +208,21 @@ a:hover { text-decoration: underline; }
         <button class="btn btn-primary" onclick="doLogin()">登录</button>
       </div>
       <p style="font-size:.8rem;color:var(--text-light);margin-top:8px;">输入昵称即可登录，无需密码</p>
+    </div>
+    <div class="tab-content" id="tab-qq">
+      <label>QQ 号</label>
+      <input type="text" id="qq-number" placeholder="输入你的 QQ 号...">
+      <label>昵称</label>
+      <input type="text" id="qq-nickname" placeholder="你的昵称...">
+      <div id="qq-avatar-preview" style="text-align:center;margin:8px 0;display:none;">
+        <img id="qq-avatar-img" src="" style="width:56px;height:56px;border-radius:50%;border:2px solid var(--accent);" onerror="this.style.display='none';document.getElementById('qq-avatar-preview').style.display='none';">
+        <p style="font-size:.75rem;color:var(--text-light);">QQ 头像</p>
+      </div>
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn" onclick="closeLoginModal()">取消</button>
+        <button class="btn btn-primary" onclick="doQQLogin()">QQ 登录</button>
+      </div>
+      <p style="font-size:.78rem;color:var(--text-light);margin-top:8px;">输入 QQ 号即可自动获取头像，无需密码</p>
     </div>
     <div class="tab-content" id="tab-register">
       <label>新昵称</label>
@@ -240,9 +257,18 @@ let editingId = null;
 
 function getToken() { return localStorage.getItem('gh_token') || ''; }
 function isAdmin() { return !!getToken(); }
-function getNickname() { return localStorage.getItem('aiblog_nickname') || ''; }
+function getNickname() {
+  // QQ login takes priority
+  if (localStorage.getItem('aiblog_qq')) return localStorage.getItem('aiblog_qq_nickname') || '';
+  return localStorage.getItem('aiblog_nickname') || '';
+}
 function isLoggedIn() { return !!getNickname() || isAdmin(); }
 function getDisplayName() { return isAdmin() ? '管理员' : getNickname(); }
+function getQQ() { return localStorage.getItem('aiblog_qq') || ''; }
+function getQQAvatar() {
+  const qq = getQQ();
+  return qq ? `https://q.qlogo.cn/headimg_dl?dst_uin=${qq}&spec=100` : '';
+}
 
 function headers() {
   const t = getToken();
@@ -269,15 +295,21 @@ function updateAdminUI() {
   // User badge
   const badge = document.getElementById('user-badge');
   const loginBtn = document.getElementById('login-btn');
+  const avatarEl = document.getElementById('user-avatar');
   if (admin) {
     badge.style.display = 'inline-flex';
     loginBtn.style.display = 'none';
-    document.getElementById('user-avatar').textContent = 'A';
+    avatarEl.innerHTML = 'A';
     document.getElementById('user-name-display').textContent = '管理员';
   } else if (nick) {
     badge.style.display = 'inline-flex';
     loginBtn.style.display = 'none';
-    document.getElementById('user-avatar').textContent = nick.charAt(0).toUpperCase();
+    const qqAvatar = getQQAvatar();
+    if (qqAvatar) {
+      avatarEl.innerHTML = `<img src="${qqAvatar}" alt="">`;
+    } else {
+      avatarEl.textContent = nick.charAt(0).toUpperCase();
+    }
     document.getElementById('user-name-display').textContent = nick;
   } else {
     badge.style.display = 'none';
@@ -313,9 +345,22 @@ function clearToken() {
 
 function showLoginModal() {
   document.getElementById('login-nickname').value = getNickname();
+  document.getElementById('qq-number').value = localStorage.getItem('aiblog_qq') || '';
+  document.getElementById('qq-nickname').value = localStorage.getItem('aiblog_qq_nickname') || '';
   document.getElementById('register-nickname').value = '';
   document.getElementById('login-token').value = '';
-  switchLoginTab('login');
+
+  // Determine which tab to show
+  if (localStorage.getItem('aiblog_qq')) {
+    switchLoginTab('qq');
+    // Trigger avatar preview
+    const qq = localStorage.getItem('aiblog_qq');
+    document.getElementById('qq-avatar-img').src = `https://q.qlogo.cn/headimg_dl?dst_uin=${qq}&spec=100`;
+    document.getElementById('qq-avatar-preview').style.display = '';
+  } else {
+    switchLoginTab('login');
+  }
+
   document.getElementById('login-modal').classList.add('active');
 }
 
@@ -324,11 +369,32 @@ function closeLoginModal() {
 }
 
 function switchLoginTab(tab) {
+  const tabs = { 'login': 0, 'qq': 1, 'register': 2 };
   document.querySelectorAll('#login-modal .tab').forEach((t, i) => {
-    t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'register' && i === 1));
+    t.classList.toggle('active', tabs[tab] === i);
   });
   document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-qq').classList.toggle('active', tab === 'qq');
   document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+
+  // QQ avatar preview
+  if (tab === 'qq') {
+    const qqInput = document.getElementById('qq-number');
+    if (!qqInput._listener) {
+      qqInput._listener = true;
+      qqInput.addEventListener('input', function() {
+        const qq = this.value.trim();
+        const preview = document.getElementById('qq-avatar-preview');
+        const img = document.getElementById('qq-avatar-img');
+        if (/^\d{5,11}$/.test(qq)) {
+          img.src = `https://q.qlogo.cn/headimg_dl?dst_uin=${qq}&spec=100`;
+          preview.style.display = '';
+        } else {
+          preview.style.display = 'none';
+        }
+      });
+    }
+  }
 }
 
 function doLogin() {
@@ -350,6 +416,20 @@ function doRegister() {
   refreshCurrent();
 }
 
+function doQQLogin() {
+  const qq = document.getElementById('qq-number').value.trim();
+  const nick = document.getElementById('qq-nickname').value.trim();
+  if (!qq) { alert('请输入 QQ 号'); return; }
+  if (!/^\d{5,11}$/.test(qq)) { alert('请输入正确的 QQ 号'); return; }
+  if (!nick) { alert('请输入昵称'); return; }
+  localStorage.setItem('aiblog_qq', qq);
+  localStorage.setItem('aiblog_qq_nickname', nick);
+  localStorage.removeItem('aiblog_nickname'); // clear simple nick if switching
+  closeLoginModal();
+  updateAdminUI();
+  refreshCurrent();
+}
+
 function doAdminLogin() {
   const token = document.getElementById('login-token').value.trim();
   if (!token) { alert('请输入 Token'); return; }
@@ -362,6 +442,8 @@ function doAdminLogin() {
 function doLogout() {
   if (confirm('确定退出登录？')) {
     localStorage.removeItem('aiblog_nickname');
+    localStorage.removeItem('aiblog_qq');
+    localStorage.removeItem('aiblog_qq_nickname');
     localStorage.removeItem('gh_token');
     updateAdminUI();
     refreshCurrent();
@@ -471,7 +553,8 @@ async function addComment(number) {
   if (!nick && !isAdmin()) { alert('请先登录（设置昵称）才能评论'); showLoginModal(); return; }
 
   const displayName = isAdmin() ? '管理员' : nick;
-  const commentBody = `**${displayName}**：${body}`;
+  const qq = getQQ();
+  const commentBody = qq ? `**${displayName}**（QQ:${qq}）：${body}` : `**${displayName}**：${body}`;
 
   try {
     const token = getToken();
