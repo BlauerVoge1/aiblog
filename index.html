@@ -239,11 +239,6 @@ a:hover { text-decoration: underline; }
       </div>
       <p style="font-size:.78rem;color:var(--text-light);margin-top:8px;">输入 QQ 号即可自动获取头像，无需密码</p>
     </div>
-    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
-      <p style="font-size:.78rem;color:var(--text-light);margin-bottom:6px;">管理员登录</p>
-      <input type="password" id="login-token" placeholder="输入 GitHub Token...">
-      <button class="btn btn-primary btn-sm" style="margin-top:6px;width:100%;" onclick="doAdminLogin()">管理员登录</button>
-    </div>
   </div>
 </div>
 
@@ -371,7 +366,6 @@ function showLoginModal() {
   document.getElementById('register-password2').value = '';
   document.getElementById('qq-number').value = localStorage.getItem('aiblog_qq') || '';
   document.getElementById('qq-nickname').value = localStorage.getItem('aiblog_qq_nickname') || '';
-  document.getElementById('login-token').value = '';
 
   if (localStorage.getItem('aiblog_qq')) {
     switchLoginTab('qq');
@@ -480,15 +474,6 @@ function doQQLogin() {
   localStorage.setItem('aiblog_qq', qq);
   localStorage.setItem('aiblog_qq_nickname', nick);
   localStorage.removeItem('aiblog_nickname');
-  closeLoginModal();
-  updateAdminUI();
-  refreshCurrent();
-}
-
-function doAdminLogin() {
-  const token = document.getElementById('login-token').value.trim();
-  if (!token) { alert('请输入 Token'); return; }
-  localStorage.setItem('gh_token', token);
   closeLoginModal();
   updateAdminUI();
   refreshCurrent();
