@@ -452,6 +452,8 @@ async function doRegister() {
   btn.disabled = true; btn.textContent = '注册中...';
   try {
     await tcbAuth.signUp({ username, password });
+    // Auto-login after signup (signUp doesn't auto-login in CloudBase)
+    await tcbAuth.signInWithPassword({ username, password });
     alert('注册成功！已自动登录');
     localStorage.removeItem('aiblog_nickname');
     localStorage.removeItem('aiblog_qq');
