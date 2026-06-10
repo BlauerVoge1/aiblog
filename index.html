@@ -312,6 +312,7 @@ body {
 
     <div class="tab-content" id="tab-register">
       <div class="form-group"><label>用户名 *</label><input type="text" id="reg-username" placeholder="字母开头，3-16位"></div>
+      <div class="form-group"><label>邮箱 *</label><input type="email" id="reg-email" placeholder="CloudBase 注册必需"></div>
       <div class="form-group"><label>密码 *</label><input type="password" id="reg-password" placeholder="至少6位"></div>
       <div class="form-group"><label>确认密码 *</label><input type="password" id="reg-password2" placeholder="再次输入"></div>
       <div class="form-group">
@@ -481,6 +482,7 @@ function showLoginModal() {
   document.getElementById('login-username').value = '';
   document.getElementById('login-password').value = '';
   document.getElementById('reg-username').value = '';
+  document.getElementById('reg-email').value = '';
   document.getElementById('reg-password').value = '';
   document.getElementById('reg-password2').value = '';
   document.getElementById('reg-qq').value = getQQ();
@@ -542,29 +544,32 @@ async function doLogin() {
 }
 
 async function doRegister() {
-  const username = document.getElementById('reg-username').value.trim();
-  const password = document.getElementById('reg-password').value.trim();
-  const password2 = document.getElementById('reg-password2').value.trim();
-  const qq = document.getElementById('reg-qq').value.trim();
+  var username = document.getElementById('reg-username').value.trim();
+  var email = document.getElementById('reg-email').value.trim();
+  var password = document.getElementById('reg-password').value.trim();
+  var password2 = document.getElementById('reg-password2').value.trim();
+  var qq = document.getElementById('reg-qq').value.trim();
 
   if (!username) { toast('请输入用户名', 'error'); return; }
   if (!/^[a-zA-Z]/.test(username)) { toast('用户名必须以字母开头', 'error'); return; }
   if (username.length < 3 || username.length > 16) { toast('用户名长度 3-16 位', 'error'); return; }
+  if (!email) { toast('请输入邮箱', 'error'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('邮箱格式不正确', 'error'); return; }
   if (!password) { toast('请输入密码', 'error'); return; }
   if (password.length < 6) { toast('密码至少 6 位', 'error'); return; }
   if (password !== password2) { toast('两次密码不一致', 'error'); return; }
   if (!tcbAuth) { toast('CloudBase 未就绪，请刷新页面', 'error'); return; }
 
-  const btn = document.getElementById('reg-submit');
+  var btn = document.getElementById('reg-submit');
   btn.disabled = true; btn.textContent = '注册中...';
   try {
-    console.log('[Register] Attempting:', username);
-    const regResult = await tcbAuth.signUp({ username: username, password: password });
+    console.log('[Register] Attempting:', username, email);
+    var regResult = await tcbAuth.signUp({ username: username, password: password, email: email });
     console.log('[Register] signUp result:', regResult);
     if (regResult && regResult.error) throw regResult.error;
 
     console.log('[Register] Auto-signing in...');
-    const loginResult = await tcbAuth.signInWithPassword({ username: username, password: password });
+    var loginResult = await tcbAuth.signInWithPassword({ username: username, password: password });
     console.log('[Register] signIn result:', loginResult);
     if (loginResult && loginResult.error) throw loginResult.error;
 
