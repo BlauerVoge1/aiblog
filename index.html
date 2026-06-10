@@ -196,18 +196,33 @@ a:hover { text-decoration: underline; }
 <div class="modal-overlay login-modal" id="login-modal">
   <div class="modal" style="max-width:400px;">
     <div class="tabs">
-      <button class="tab active" onclick="switchLoginTab('login')">昵称登录</button>
-      <button class="tab" onclick="switchLoginTab('qq')">QQ登录</button>
+      <button class="tab active" onclick="switchLoginTab('login')">登录</button>
       <button class="tab" onclick="switchLoginTab('register')">注册</button>
+      <button class="tab" onclick="switchLoginTab('qq')">QQ登录</button>
     </div>
     <div class="tab-content active" id="tab-login">
-      <label>昵称</label>
-      <input type="text" id="login-nickname" placeholder="输入你的昵称...">
+      <label>用户名</label>
+      <input type="text" id="login-username" placeholder="用户名...">
+      <label>密码</label>
+      <input type="password" id="login-password" placeholder="密码...">
       <div class="btn-row" style="margin-top:8px;">
         <button class="btn" onclick="closeLoginModal()">取消</button>
-        <button class="btn btn-primary" onclick="doLogin()">登录</button>
+        <button class="btn btn-primary" id="login-submit" onclick="doLogin()">登录</button>
       </div>
-      <p style="font-size:.8rem;color:var(--text-light);margin-top:8px;">输入昵称即可登录，无需密码</p>
+      <p style="font-size:.8rem;color:var(--text-light);margin-top:8px;">没有账号？点击「注册」创建</p>
+    </div>
+    <div class="tab-content" id="tab-register">
+      <label>用户名</label>
+      <input type="text" id="register-username" placeholder="用户名（字母开头，4-16位）...">
+      <label>密码</label>
+      <input type="password" id="register-password" placeholder="密码（至少6位）...">
+      <label>确认密码</label>
+      <input type="password" id="register-password2" placeholder="再次输入密码...">
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn" onclick="closeLoginModal()">取消</button>
+        <button class="btn btn-primary" id="register-submit" onclick="doRegister()">注册</button>
+      </div>
+      <p style="font-size:.8rem;color:var(--text-light);margin-top:8px;">注册后即可发表评论，密码加密存储</p>
     </div>
     <div class="tab-content" id="tab-qq">
       <label>QQ 号</label>
@@ -224,15 +239,6 @@ a:hover { text-decoration: underline; }
       </div>
       <p style="font-size:.78rem;color:var(--text-light);margin-top:8px;">输入 QQ 号即可自动获取头像，无需密码</p>
     </div>
-    <div class="tab-content" id="tab-register">
-      <label>新昵称</label>
-      <input type="text" id="register-nickname" placeholder="起一个昵称...">
-      <div class="btn-row" style="margin-top:8px;">
-        <button class="btn" onclick="closeLoginModal()">取消</button>
-        <button class="btn btn-primary" onclick="doRegister()">注册</button>
-      </div>
-      <p style="font-size:.8rem;color:var(--text-light);margin-top:8px;">注册后即可发表评论</p>
-    </div>
     <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
       <p style="font-size:.78rem;color:var(--text-light);margin-bottom:6px;">管理员登录</p>
       <input type="password" id="login-token" placeholder="输入 GitHub Token...">
@@ -242,13 +248,26 @@ a:hover { text-decoration: underline; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
 <script>
 const OWNER = 'BlauerVoge1';
 const REPO = 'aiblog';
 const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
 const BLOG_LABEL = 'blog';
 const PAGES_URL = `https://blauervoge1.github.io/aiblog`;
-const DEFAULT_TOKEN = (() => { const a='ghp_z87'; const b='1szQYTKtO5iBKKHeL5n2aXyCpW74ZzdPl'; return a+b; })();
+
+// CloudBase config
+const TCB_ENV = 'robot-d5g5bfzigbc61c975';
+let tcbApp = null;
+let tcbAuth = null;
+let tcbDb = null;
+
+// Init CloudBase
+try {
+  tcbApp = cloudbase.init({ env: TCB_ENV });
+  tcbAuth = tcbApp.auth({ persistence: 'local' });
+  tcbDb = tcbApp.database();
+} catch(e) { console.log('CloudBase init error:', e); }
 
 let page = 1;
 let currentIssue = null;
@@ -256,14 +275,14 @@ let editingId = null;
 
 // ==================== State ====================
 
-function getToken() { return localStorage.getItem('gh_token') || DEFAULT_TOKEN; }
-function isAdmin() { return !!(localStorage.getItem('gh_token')); } // only admin if user explicitly entered token
+function getToken() { return localStorage.getItem('gh_token') || ''; }
+function isAdmin() { return !!localStorage.getItem('gh_token'); }
 function getNickname() {
-  // QQ login takes priority
+  if (tcbAuth && tcbAuth.currentUser) return tcbAuth.currentUser.username || '';
   if (localStorage.getItem('aiblog_qq')) return localStorage.getItem('aiblog_qq_nickname') || '';
   return localStorage.getItem('aiblog_nickname') || '';
 }
-function isLoggedIn() { return !!getNickname() || isAdmin(); }
+function isLoggedIn() { return (tcbAuth && tcbAuth.currentUser) || !!getNickname() || isAdmin(); }
 function getDisplayName() { return isAdmin() ? '管理员' : getNickname(); }
 function getQQ() { return localStorage.getItem('aiblog_qq') || ''; }
 function getQQAvatar() {
@@ -345,16 +364,17 @@ function clearToken() {
 // ==================== Login / Register ====================
 
 function showLoginModal() {
-  document.getElementById('login-nickname').value = getNickname();
+  document.getElementById('login-username').value = getNickname();
+  document.getElementById('login-password').value = '';
+  document.getElementById('register-username').value = '';
+  document.getElementById('register-password').value = '';
+  document.getElementById('register-password2').value = '';
   document.getElementById('qq-number').value = localStorage.getItem('aiblog_qq') || '';
   document.getElementById('qq-nickname').value = localStorage.getItem('aiblog_qq_nickname') || '';
-  document.getElementById('register-nickname').value = '';
   document.getElementById('login-token').value = '';
 
-  // Determine which tab to show
   if (localStorage.getItem('aiblog_qq')) {
     switchLoginTab('qq');
-    // Trigger avatar preview
     const qq = localStorage.getItem('aiblog_qq');
     document.getElementById('qq-avatar-img').src = `https://q.qlogo.cn/headimg_dl?dst_uin=${qq}&spec=100`;
     document.getElementById('qq-avatar-preview').style.display = '';
@@ -370,15 +390,14 @@ function closeLoginModal() {
 }
 
 function switchLoginTab(tab) {
-  const tabs = { 'login': 0, 'qq': 1, 'register': 2 };
+  const tabs = { 'login': 0, 'register': 0, 'qq': 2 };
   document.querySelectorAll('#login-modal .tab').forEach((t, i) => {
     t.classList.toggle('active', tabs[tab] === i);
   });
   document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-  document.getElementById('tab-qq').classList.toggle('active', tab === 'qq');
   document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+  document.getElementById('tab-qq').classList.toggle('active', tab === 'qq');
 
-  // QQ avatar preview
   if (tab === 'qq') {
     const qqInput = document.getElementById('qq-number');
     if (!qqInput._listener) {
@@ -398,23 +417,58 @@ function switchLoginTab(tab) {
   }
 }
 
-function doLogin() {
-  const nick = document.getElementById('login-nickname').value.trim();
-  if (!nick) { alert('请输入昵称'); return; }
-  localStorage.setItem('aiblog_nickname', nick);
-  closeLoginModal();
-  updateAdminUI();
-  refreshCurrent();
+async function doLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-password').value.trim();
+  if (!username || !password) { alert('请输入用户名和密码'); return; }
+
+  if (!tcbAuth) { alert('CloudBase 未初始化，请刷新页面'); return; }
+
+  const btn = document.getElementById('login-submit');
+  btn.disabled = true; btn.textContent = '登录中...';
+  try {
+    await tcbAuth.signInWithPassword({ username, password });
+    localStorage.removeItem('aiblog_nickname');
+    localStorage.removeItem('aiblog_qq');
+    localStorage.removeItem('aiblog_qq_nickname');
+    closeLoginModal();
+    updateAdminUI();
+    refreshCurrent();
+  } catch (e) {
+    alert('登录失败: ' + (e.message || e));
+  }
+  btn.disabled = false; btn.textContent = '登录';
 }
 
-function doRegister() {
-  const nick = document.getElementById('register-nickname').value.trim();
-  if (!nick) { alert('请输入昵称'); return; }
-  if (nick.length < 2) { alert('昵称至少 2 个字符'); return; }
-  localStorage.setItem('aiblog_nickname', nick);
-  closeLoginModal();
-  updateAdminUI();
-  refreshCurrent();
+async function doRegister() {
+  const username = document.getElementById('register-username').value.trim();
+  const password = document.getElementById('register-password').value.trim();
+  const password2 = document.getElementById('register-password2').value.trim();
+
+  if (!username) { alert('请输入用户名'); return; }
+  if (!/^[a-zA-Z]/.test(username)) { alert('用户名必须以字母开头'); return; }
+  if (username.length < 3 || username.length > 16) { alert('用户名长度 3-16 位'); return; }
+  if (!password) { alert('请输入密码'); return; }
+  if (password.length < 6) { alert('密码至少 6 位'); return; }
+  if (password !== password2) { alert('两次密码不一致'); return; }
+
+  if (!tcbAuth) { alert('CloudBase 未初始化，请刷新页面'); return; }
+
+  const btn = document.getElementById('register-submit');
+  btn.disabled = true; btn.textContent = '注册中...';
+  try {
+    await tcbAuth.signUp({ username, password });
+    alert('注册成功！已自动登录');
+    localStorage.removeItem('aiblog_nickname');
+    localStorage.removeItem('aiblog_qq');
+    localStorage.removeItem('aiblog_qq_nickname');
+    closeLoginModal();
+    updateAdminUI();
+    refreshCurrent();
+  } catch (e) {
+    alert('注册失败: ' + (e.message || e));
+  }
+  btn.disabled = false; btn.textContent = '注册';
 }
 
 function doQQLogin() {
@@ -425,7 +479,7 @@ function doQQLogin() {
   if (!nick) { alert('请输入昵称'); return; }
   localStorage.setItem('aiblog_qq', qq);
   localStorage.setItem('aiblog_qq_nickname', nick);
-  localStorage.removeItem('aiblog_nickname'); // clear simple nick if switching
+  localStorage.removeItem('aiblog_nickname');
   closeLoginModal();
   updateAdminUI();
   refreshCurrent();
@@ -446,6 +500,7 @@ function doLogout() {
     localStorage.removeItem('aiblog_qq');
     localStorage.removeItem('aiblog_qq_nickname');
     localStorage.removeItem('gh_token');
+    if (tcbAuth) tcbAuth.signOut().catch(() => {});
     updateAdminUI();
     refreshCurrent();
   }
@@ -550,23 +605,37 @@ async function addComment(number) {
   const body = input.value.trim();
   if (!body) return;
 
-  const nick = getNickname();
-  if (!nick && !isAdmin()) { alert('请先登录（设置昵称）才能评论'); showLoginModal(); return; }
+  if (!isLoggedIn()) { alert('请先登录才能评论'); showLoginModal(); return; }
 
-  const displayName = isAdmin() ? '管理员' : nick;
-  const qq = getQQ();
-  const commentBody = qq ? `**${displayName}**（QQ:${qq}）：${body}` : `**${displayName}**：${body}`;
+  if (!tcbDb) { alert('数据库未初始化，请刷新页面'); return; }
 
+  const displayName = getDisplayName();
   try {
-    const r = await fetch(`${API}/issues/${number}/comments`, {
-      method: 'POST', headers: headers(),
-      body: JSON.stringify({ body: commentBody })
+    await tcbDb.collection('blog_comments').add({
+      post_id: String(number),
+      username: displayName,
+      body: body,
+      created_at: new Date().toISOString()
     });
-    if (!r.ok) throw new Error('Comment failed');
     input.value = '';
     showPost(number, true);
   } catch (e) {
-    alert('评论失败: ' + e.message);
+    alert('评论失败: ' + (e.message || e));
+    console.error(e);
+  }
+}
+
+async function fetchCommentsFromTCB(postId) {
+  if (!tcbDb) return [];
+  try {
+    const res = await tcbDb.collection('blog_comments')
+      .where({ post_id: String(postId) })
+      .orderBy('created_at', 'asc')
+      .get();
+    return res.data || [];
+  } catch (e) {
+    console.log('Comment fetch error:', e);
+    return [];
   }
 }
 
@@ -691,13 +760,14 @@ async function renderPost(issue, comments) {
     html += `<p style="color:var(--text-light);font-size:.9rem;">暂无评论</p>`;
   } else {
     comments.forEach(c => {
-      const meta = parseCommentMeta(c.body || '');
+      const displayName = c.username || '匿名';
+      const body = c.body || '';
       let cbody = '';
-      try { cbody = marked.parse(meta.content); } catch (e) { cbody = escapeHtml(meta.content); }
+      try { cbody = marked.parse(body); } catch (e) { cbody = escapeHtml(body); }
       html += `
         <div class="comment">
           <div class="comment-header">
-            <strong>${escapeHtml(meta.displayName)}</strong> · ${timeAgo(c.created_at)}
+            <strong>${escapeHtml(displayName)}</strong> · ${timeAgo(c.created_at)}
           </div>
           <div class="comment-body">${cbody}</div>
         </div>`;
@@ -749,7 +819,7 @@ async function showPost(number, skipPush) {
   if (!skipPush) history.pushState(null, '', `?p=${number}`);
 
   try {
-    const [issue, comments] = await Promise.all([fetchPost(number), fetchComments(number)]);
+    const [issue, comments] = await Promise.all([fetchPost(number), fetchCommentsFromTCB(number)]);
     await renderPost(issue, comments);
   } catch (e) {
     app.innerHTML = `<div class="error">加载失败: ${escapeHtml(e.message)}<br><button class="btn btn-sm" style="margin-top:8px" onclick="showList()">返回列表</button></div>`;
@@ -807,7 +877,16 @@ async function editPost(number) {
 
 // ==================== Init ====================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Recover CloudBase session
+  if (tcbAuth) {
+    try {
+      const loginState = await tcbAuth.getLoginState();
+      if (loginState) {
+        await tcbAuth.tryAuthInWeb();
+      }
+    } catch (e) { /* no existing session */ }
+  }
   updateAdminUI();
 
   // Close modal on overlay click
