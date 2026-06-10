@@ -538,7 +538,12 @@ async function doLogin() {
     refreshCurrent();
   } catch (e) {
     console.error('[Login] Error:', e);
-    toast('登录失败: ' + cloudbaseError(e), 'error');
+    var errMsg = cloudbaseError(e);
+    if (errMsg.indexOf('Failed to fetch') !== -1 || errMsg.indexOf('NetworkError') !== -1) {
+      toast('网络请求失败，请确认已将 blauervoge1.github.io 加入 CloudBase Web 安全域名白名单', 'error');
+    } else {
+      toast('登录失败: ' + errMsg, 'error');
+    }
   }
   btn.disabled = false; btn.textContent = '登录';
 }
@@ -583,7 +588,12 @@ async function doRegister() {
     refreshCurrent();
   } catch (e) {
     console.error('[Register] Error:', e);
-    toast('注册失败: ' + cloudbaseError(e), 'error');
+    var errMsg = cloudbaseError(e);
+    if (errMsg.indexOf('Failed to fetch') !== -1 || errMsg.indexOf('NetworkError') !== -1) {
+      toast('网络请求失败，请确认已将 blauervoge1.github.io 加入 CloudBase Web 安全域名白名单', 'error');
+    } else {
+      toast('注册失败: ' + errMsg, 'error');
+    }
   }
   btn.disabled = false; btn.textContent = '注册';
 }
