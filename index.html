@@ -815,7 +815,12 @@ async function fetchCommentsFromTCB(postId) {
 
   } catch (e) {
     console.error('Fetch comments error:', e);
-    listEl.innerHTML = '<div class="empty">加载评论失败: ' + cloudbaseError(e) + '</div>';
+    var errMsg = cloudbaseError(e).toLowerCase();
+    if (errMsg.indexOf('unauthenticated') !== -1 || errMsg.indexOf('auth') !== -1 || errMsg.indexOf('not logged in') !== -1 || errMsg.indexOf('not login') !== -1) {
+      listEl.innerHTML = '<div style="padding:12px;color:var(--text-light);font-size:.88rem;"><a onclick="showLoginModal()" style="color:var(--accent);cursor:pointer;">登录</a>后查看评论</div>';
+    } else {
+      listEl.innerHTML = '<div class="empty">加载评论失败: ' + cloudbaseError(e) + '</div>';
+    }
   }
 }
 
