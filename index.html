@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Blue's Blog</title>
-<script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 :root {
@@ -27,24 +26,15 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.7;
-  min-height: 100vh;
+  background: var(--bg); color: var(--text); line-height: 1.7; min-height: 100vh;
 }
-
-/* Header */
 .header {
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  position: sticky; top: 0; z-index: 100;
-  box-shadow: var(--shadow);
+  background: var(--bg-card); border-bottom: 1px solid var(--border);
+  padding: 0 20px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow);
 }
 .header-inner {
   max-width: var(--max-w); margin: 0 auto;
-  display: flex; align-items: center; justify-content: space-between;
-  height: 52px;
+  display: flex; align-items: center; justify-content: space-between; height: 52px;
 }
 .header-left { display: flex; align-items: center; gap: 18px; }
 .site-title { font-size: 1.15rem; font-weight: 600; color: var(--text); text-decoration: none; }
@@ -53,7 +43,6 @@ body {
 .nav-links a { font-size: .85rem; color: var(--text-light); text-decoration: none; }
 .nav-links a:hover { color: var(--accent); }
 
-/* User badge */
 .user-badge { display: none; align-items: center; gap: 8px; cursor: pointer; position: relative; }
 .user-avatar {
   width: 32px; height: 32px; border-radius: 50%;
@@ -76,14 +65,12 @@ body {
 }
 .login-btn:hover { background: var(--accent-hover); }
 
-/* Admin Token Bar */
 .token-bar {
   display: none; background: #fff8e1; border-bottom: 1px solid #ffe082;
   padding: 8px 20px; font-size: .82rem;
 }
 .token-bar-inner {
-  max-width: var(--max-w); margin: 0 auto;
-  display: flex; align-items: center; gap: 8px;
+  max-width: var(--max-w); margin: 0 auto; display: flex; align-items: center; gap: 8px;
 }
 .token-bar input { flex: 1; padding: 5px 10px; border: 1px solid var(--border); border-radius: 5px; font-size: .8rem; }
 .token-bar button { padding: 5px 14px; border: none; border-radius: 5px; font-size: .8rem; cursor: pointer; }
@@ -92,10 +79,8 @@ body {
 .token-bar .clear-btn { background: none; color: var(--danger); }
 .token-bar .admin-label { color: #8d6e00; font-weight: 600; margin-right: 6px; }
 
-/* Main */
 .main { max-width: var(--max-w); margin: 0 auto; padding: 24px 20px; }
 
-/* Post list */
 .post-item {
   background: var(--bg-card); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 20px 24px; margin-bottom: 14px;
@@ -103,16 +88,13 @@ body {
 }
 .post-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,.08); }
 .post-item h2 { font-size: 1.1rem; margin-bottom: 6px; color: var(--text); }
-.post-meta {
-  display: flex; gap: 16px; font-size: .78rem; color: var(--text-light); flex-wrap: wrap;
-}
+.post-meta { display: flex; gap: 16px; font-size: .78rem; color: var(--text-light); flex-wrap: wrap; }
 .post-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .post-tag {
   padding: 2px 10px; background: var(--tag-bg); color: var(--tag-text);
   border-radius: 12px; font-size: .72rem;
 }
 
-/* Post detail */
 .post-detail { display: none; }
 .post-detail-header { margin-bottom: 20px; }
 .post-detail-header h1 { font-size: 1.5rem; margin-bottom: 8px; }
@@ -127,14 +109,11 @@ body {
 .post-content pre { background: #f0efe8; padding: 14px 18px; border-radius: var(--radius); overflow-x: auto; margin: 10px 0; }
 .post-content pre code { background: none; padding: 0; }
 .post-content img { max-width: 100%; border-radius: 6px; }
-.post-content blockquote {
-  border-left: 3px solid var(--accent); padding-left: 14px; color: var(--text-light); margin: 10px 0;
-}
+.post-content blockquote { border-left: 3px solid var(--accent); padding-left: 14px; color: var(--text-light); margin: 10px 0; }
 .post-content a { color: var(--accent); }
 .post-content ul, .post-content ol { padding-left: 20px; margin-bottom: .8em; }
 .back-link { color: var(--accent); cursor: pointer; font-size: .88rem; margin-bottom: 14px; display: inline-block; }
 
-/* Comments */
 .comments-section { margin-top: 24px; }
 .comments-section h3 { font-size: 1rem; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 .comment-item {
@@ -152,7 +131,6 @@ body {
 .comment-time { font-size: .72rem; color: var(--text-light); }
 .comment-body { font-size: .9rem; line-height: 1.6; margin-left: 36px; }
 
-/* Comment form */
 .comment-form {
   background: var(--bg-card); border: 1px solid var(--border);
   border-radius: var(--radius); padding: 18px; margin-top: 16px;
@@ -175,7 +153,6 @@ body {
 .comment-form .submit-btn:hover { background: var(--accent-hover); }
 .comment-form .submit-btn:disabled { opacity: .5; cursor: not-allowed; }
 
-/* Login Modal */
 .modal-overlay {
   display: none; position: fixed; inset: 0; z-index: 500;
   background: rgba(0,0,0,.4); align-items: center; justify-content: center;
@@ -187,23 +164,18 @@ body {
 }
 .modal h2 { font-size: 1.15rem; margin-bottom: 18px; text-align: center; }
 
-/* Tabs */
 .tabs { display: flex; margin-bottom: 18px; border-bottom: 2px solid var(--border); }
 .tab {
   flex: 1; padding: 8px 0; border: none; background: none;
   font-size: .92rem; cursor: pointer; color: var(--text-light);
-  border-bottom: 2px solid transparent; margin-bottom: -2px;
-  transition: all .15s;
+  border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s;
 }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
-/* Forms */
 .form-group { margin-bottom: 14px; }
-.form-group label {
-  display: block; font-size: .82rem; color: var(--text-light); margin-bottom: 4px;
-}
+.form-group label { display: block; font-size: .82rem; color: var(--text-light); margin-bottom: 4px; }
 .form-group input {
   width: 100%; padding: 9px 12px; border: 1px solid var(--border);
   border-radius: 8px; font-size: .9rem; font-family: inherit;
@@ -220,7 +192,6 @@ body {
 .btn-danger:hover { background: var(--danger-hover); }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 
-/* Admin panel */
 .admin-controls { display: none; margin-bottom: 18px; flex-wrap: wrap; gap: 8px; }
 .admin-controls .new-post-btn {
   padding: 8px 20px; background: #2e7d32; color: #fff;
@@ -228,12 +199,10 @@ body {
 }
 .admin-controls .new-post-btn:hover { background: #1b5e20; }
 
-/* Page */
 .page-info { text-align: center; padding: 20px; color: var(--text-light); font-size: .85rem; }
 .loading { text-align: center; padding: 40px; color: var(--text-light); }
 .empty { text-align: center; padding: 60px 20px; color: var(--text-light); }
 
-/* Toast */
 .toast {
   position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
   padding: 10px 24px; border-radius: 8px; font-size: .88rem; z-index: 999;
@@ -243,7 +212,6 @@ body {
 .toast-error { background: var(--danger); color: #fff; }
 @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 
-/* Responsive */
 @media (max-width: 600px) {
   .header { padding: 0 14px; }
   .main { padding: 16px 14px; }
@@ -301,8 +269,8 @@ body {
     </div>
 
     <div class="tab-content active" id="tab-login">
-      <div class="form-group"><label>用户名</label><input type="text" id="login-username" placeholder="输入用户名"></div>
-      <div class="form-group"><label>密码</label><input type="password" id="login-password" placeholder="输入密码"></div>
+      <div class="form-group"><label>邮箱</label><input type="email" id="login-email" placeholder="输入注册邮箱"></div>
+      <div class="form-group"><label>密码</label><input type="password" id="login-password" placeholder="输入密码" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="btn-row" style="margin-top:8px;">
         <button class="btn" onclick="closeLoginModal()">取消</button>
         <button class="btn btn-primary" id="login-submit" onclick="doLogin()">登录</button>
@@ -311,10 +279,10 @@ body {
     </div>
 
     <div class="tab-content" id="tab-register">
-      <div class="form-group"><label>用户名 *</label><input type="text" id="reg-username" placeholder="字母开头，3-16位"></div>
-      <div class="form-group"><label>邮箱 *</label><input type="email" id="reg-email" placeholder="CloudBase 注册必需"></div>
+      <div class="form-group"><label>用户名 *</label><input type="text" id="reg-username" placeholder="显示名称，2-20位"></div>
+      <div class="form-group"><label>邮箱 *</label><input type="email" id="reg-email" placeholder="用于登录"></div>
       <div class="form-group"><label>密码 *</label><input type="password" id="reg-password" placeholder="至少6位"></div>
-      <div class="form-group"><label>确认密码 *</label><input type="password" id="reg-password2" placeholder="再次输入"></div>
+      <div class="form-group"><label>确认密码 *</label><input type="password" id="reg-password2" placeholder="再次输入" onkeydown="if(event.key==='Enter')doRegister()"></div>
       <div class="form-group">
         <label>QQ 号 <span style="color:var(--text-light);font-weight:400;">（选填，用于头像）</span></label>
         <input type="text" id="reg-qq" placeholder="输入 QQ 号获取头像" oninput="onRegQQInput()">
@@ -327,65 +295,100 @@ body {
         <button class="btn" onclick="closeLoginModal()">取消</button>
         <button class="btn btn-primary" id="reg-submit" onclick="doRegister()">注册</button>
       </div>
+      <p style="font-size:.78rem;color:var(--text-light);margin-top:10px;text-align:center;">已有账号？<a href="javascript:switchLoginTab('login')" style="color:var(--accent);cursor:pointer;">去登录</a></p>
     </div>
   </div>
 </div>
 
 <script>
 /* ================================================================
-   Constants
+   Config — Supabase
    ================================================================ */
-const REPO = 'BlauerVoge1/aiblog';
-const TCB_ENV = 'robot-d5g5bfzigbc61c975';
-const ISSUES_API = `https://api.github.com/repos/${REPO}/issues`;
-const PER_PAGE = 10;
+const SB_URL = 'https://icqmextioewqhjdnzlsf.supabase.co';
+const SB_KEY = 'sb_publishable_1z6dv8i9itwVQMWGt6TDug_XPoDFXxC';
+const SB_AUTH = SB_URL + '/auth/v1';
+const SB_REST = SB_URL + '/rest/v1';
 
 /* ================================================================
-   CloudBase Init
+   Supabase helpers
    ================================================================ */
-let tcbApp, tcbAuth, tcbDb;
-(function initTCB() {
-  try {
-    if (typeof cloudbase === 'undefined') { console.warn('[TCB] SDK not loaded'); return; }
-    tcbApp = cloudbase.init({ env: TCB_ENV });
-    tcbAuth = tcbApp.auth({ persistence: 'local' });
-    tcbDb = tcbApp.database();
-    console.log('[TCB] Init OK, env:', TCB_ENV);
-  } catch(e) { console.error('[TCB] Init error:', e); }
-})();
+function sbHeaders(token) {
+  var h = { 'apikey': SB_KEY, 'Content-Type': 'application/json' };
+  if (token) h['Authorization'] = 'Bearer ' + token;
+  return h;
+}
 
-/* ================================================================
-   Error helper — extracts readable message from any CloudBase error
-   ================================================================ */
-function cloudbaseError(e) {
+function sbError(e) {
   if (!e) return '未知错误';
   if (typeof e === 'string') return e;
   if (e.message) return e.message;
-  if (e.error) return cloudbaseError(e.error);
-  if (e.code) return e.code;
-  if (e.errMsg) return e.errMsg;
+  if (e.msg) return e.msg;
   if (e.error_description) return e.error_description;
   return JSON.stringify(e);
 }
 
 /* ================================================================
-   Auth state
+   Auth state (persisted in sessionStorage)
    ================================================================ */
-function isLoggedIn() { return !!(tcbAuth && tcbAuth.currentUser); }
-function isAdmin() { return !!localStorage.getItem('gh_token'); }
-function getNickname() { return (tcbAuth && tcbAuth.currentUser) ? tcbAuth.currentUser.username || '' : ''; }
-function getQQ() { return localStorage.getItem('aiblog_qq') || ''; }
-function getQQAvatar() {
-  const qq = getQQ();
-  return /^\d{5,11}$/.test(qq) ? `https://q.qlogo.cn/headimg_dl?dst_uin=${qq}&spec=100` : '';
+let _sbSession = null;
+
+function restoreSession() {
+  try {
+    var raw = sessionStorage.getItem('sb_session');
+    if (raw) _sbSession = JSON.parse(raw);
+  } catch(e) { _sbSession = null; }
 }
+restoreSession();
+
+function saveSession(s) {
+  _sbSession = s;
+  sessionStorage.setItem('sb_session', JSON.stringify(s));
+}
+
+function clearSession() {
+  _sbSession = null;
+  sessionStorage.removeItem('sb_session');
+}
+
+function isLoggedIn() {
+  return !!(_sbSession && _sbSession.access_token);
+}
+
+function getAccessToken() {
+  return _sbSession ? _sbSession.access_token : null;
+}
+
+function getNickname() {
+  if (_sbSession && _sbSession.user && _sbSession.user.user_metadata) {
+    return _sbSession.user.user_metadata.username || '';
+  }
+  return '';
+}
+
+function getQQ() {
+  if (_sbSession && _sbSession.user && _sbSession.user.user_metadata) {
+    return _sbSession.user.user_metadata.qq || '';
+  }
+  return '';
+}
+
+function getUserId() {
+  return _sbSession && _sbSession.user ? _sbSession.user.id : null;
+}
+
+function getQQAvatar() {
+  var qq = getQQ();
+  return /^\d{5,11}$/.test(qq) ? 'https://q.qlogo.cn/headimg_dl?dst_uin=' + qq + '&spec=100' : '';
+}
+
+function isAdmin() { return !!localStorage.getItem('gh_token'); }
 
 /* ================================================================
    Toast
    ================================================================ */
 function toast(msg, type) {
   type = type || 'info';
-  const el = document.createElement('div');
+  var el = document.createElement('div');
   el.className = 'toast toast-' + type;
   el.textContent = msg;
   document.body.appendChild(el);
@@ -396,12 +399,12 @@ function toast(msg, type) {
    UI: User badge & admin
    ================================================================ */
 function updateAdminUI() {
-  const badge = document.getElementById('user-badge');
-  const loginBtn = document.getElementById('login-btn');
-  const avatarEl = document.getElementById('user-avatar-el');
-  const nameEl = document.getElementById('user-name-display');
-  const adminCtrls = document.querySelector('.admin-controls');
-  const adminLink = document.getElementById('admin-link');
+  var badge = document.getElementById('user-badge');
+  var loginBtn = document.getElementById('login-btn');
+  var avatarEl = document.getElementById('user-avatar-el');
+  var nameEl = document.getElementById('user-name-display');
+  var adminCtrls = document.querySelector('.admin-controls');
+  var adminLink = document.getElementById('admin-link');
 
   if (isAdmin()) {
     badge.style.display = 'inline-flex';
@@ -413,14 +416,14 @@ function updateAdminUI() {
   } else if (isLoggedIn()) {
     badge.style.display = 'inline-flex';
     loginBtn.style.display = 'none';
-    const nick = getNickname();
-    const qqv = getQQAvatar();
+    var nick = getNickname();
+    var qqv = getQQAvatar();
     if (qqv) {
       avatarEl.innerHTML = '<img src="' + qqv + '" alt="">';
     } else {
-      avatarEl.textContent = nick.charAt(0).toUpperCase();
+      avatarEl.textContent = nick ? nick.charAt(0).toUpperCase() : '?';
     }
-    nameEl.textContent = nick;
+    nameEl.textContent = nick || '用户';
     adminLink.style.color = 'var(--text-light)';
     if (adminCtrls) adminCtrls.style.display = 'none';
   } else {
@@ -430,8 +433,8 @@ function updateAdminUI() {
     if (adminCtrls) adminCtrls.style.display = 'none';
   }
 
-  const tokenBar = document.getElementById('token-bar');
-  const tokenInput = document.getElementById('token-input');
+  var tokenBar = document.getElementById('token-bar');
+  var tokenInput = document.getElementById('token-input');
   if (tokenBar.style.display !== 'none') {
     tokenInput.value = localStorage.getItem('gh_token') || '';
   }
@@ -449,7 +452,7 @@ document.addEventListener('click', function() {
    Token bar
    ================================================================ */
 function toggleTokenBar() {
-  const bar = document.getElementById('token-bar');
+  var bar = document.getElementById('token-bar');
   if (bar.style.display === 'block') {
     bar.style.display = 'none';
   } else {
@@ -459,12 +462,12 @@ function toggleTokenBar() {
 }
 
 function saveToken() {
-  const token = document.getElementById('token-input').value.trim();
+  var token = document.getElementById('token-input').value.trim();
   if (!token) { toast('请输入 Token', 'error'); return; }
   localStorage.setItem('gh_token', token);
   toast('Token 已保存');
   updateAdminUI();
-  if (!isLoggedIn() || isAdmin()) refreshCurrent();
+  refreshCurrent();
 }
 
 function clearToken() {
@@ -479,7 +482,7 @@ function clearToken() {
    Login Modal
    ================================================================ */
 function showLoginModal() {
-  document.getElementById('login-username').value = '';
+  document.getElementById('login-email').value = '';
   document.getElementById('login-password').value = '';
   document.getElementById('reg-username').value = '';
   document.getElementById('reg-email').value = '';
@@ -507,9 +510,9 @@ function switchLoginTab(tab) {
 }
 
 function onRegQQInput() {
-  const qq = document.getElementById('reg-qq').value.trim();
-  const preview = document.getElementById('reg-qq-preview');
-  const img = document.getElementById('reg-qq-img');
+  var qq = document.getElementById('reg-qq').value.trim();
+  var preview = document.getElementById('reg-qq-preview');
+  var img = document.getElementById('reg-qq-img');
   if (/^\d{5,11}$/.test(qq)) {
     img.src = 'https://q.qlogo.cn/headimg_dl?dst_uin=' + qq + '&spec=100';
     preview.style.display = '';
@@ -518,36 +521,63 @@ function onRegQQInput() {
   }
 }
 
+/* ================================================================
+   Auth: Login
+   ================================================================ */
 async function doLogin() {
-  const username = document.getElementById('login-username').value.trim();
-  const password = document.getElementById('login-password').value.trim();
-  if (!username || !password) { toast('请输入用户名和密码', 'error'); return; }
-  if (!tcbAuth) { toast('CloudBase 未就绪，请刷新页面', 'error'); return; }
+  var email = document.getElementById('login-email').value.trim();
+  var password = document.getElementById('login-password').value.trim();
+  if (!email) { toast('请输入邮箱', 'error'); return; }
+  if (!password) { toast('请输入密码', 'error'); return; }
 
-  const btn = document.getElementById('login-submit');
+  var btn = document.getElementById('login-submit');
   btn.disabled = true; btn.textContent = '登录中...';
   try {
-    console.log('[Login] Attempting:', username);
-    const result = await tcbAuth.signInWithPassword({ username: username, password: password });
-    console.log('[Login] Result:', result);
-    if (result && result.error) throw result.error;
-    if (!tcbAuth.currentUser) throw { message: '登录未生效，请重试' };
-    console.log('[Login] OK, currentUser:', tcbAuth.currentUser.username);
+    console.log('[SB] Login:', email);
+    var resp = await fetch(SB_AUTH + '/token?grant_type=password', {
+      method: 'POST',
+      headers: sbHeaders(),
+      body: JSON.stringify({ email: email, password: password })
+    });
+    var data = await resp.json();
+    console.log('[SB] Login resp:', resp.status, data);
+
+    if (!resp.ok) throw { message: data.error_description || data.msg || data.error || ('HTTP ' + resp.status) };
+    if (!data.access_token) throw { message: '未获取到 access_token' };
+
+    // Fetch full user info
+    var userResp = await fetch(SB_AUTH + '/user', {
+      headers: sbHeaders(data.access_token)
+    });
+    var userData = await userResp.json();
+    if (userResp.ok && userData.id) {
+      data.user = userData;
+    }
+
+    saveSession(data);
+    console.log('[SB] Login OK:', data.user ? data.user.email : '?');
     closeLoginModal();
     updateAdminUI();
     refreshCurrent();
   } catch (e) {
-    console.error('[Login] Error:', e);
-    var errMsg = cloudbaseError(e);
-    if (errMsg.indexOf('Failed to fetch') !== -1 || errMsg.indexOf('NetworkError') !== -1) {
-      toast('网络请求失败，请确认已将 blauervoge1.github.io 加入 CloudBase Web 安全域名白名单', 'error');
+    console.error('[SB] Login error:', e);
+    var msg = sbError(e);
+    if (msg.indexOf('Failed to fetch') !== -1) {
+      toast('网络请求失败，请检查网络连接', 'error');
+    } else if (msg.indexOf('invalid login') !== -1 || msg.indexOf('Invalid login') !== -1) {
+      toast('邮箱或密码错误', 'error');
+    } else if (msg.indexOf('Email not confirmed') !== -1) {
+      toast('邮箱未验证，请先查收验证邮件', 'error');
     } else {
-      toast('登录失败: ' + errMsg, 'error');
+      toast('登录失败: ' + msg, 'error');
     }
   }
   btn.disabled = false; btn.textContent = '登录';
 }
 
+/* ================================================================
+   Auth: Register (one-step, no OTP!)
+   ================================================================ */
 async function doRegister() {
   var username = document.getElementById('reg-username').value.trim();
   var email = document.getElementById('reg-email').value.trim();
@@ -556,53 +586,76 @@ async function doRegister() {
   var qq = document.getElementById('reg-qq').value.trim();
 
   if (!username) { toast('请输入用户名', 'error'); return; }
-  if (!/^[a-zA-Z]/.test(username)) { toast('用户名必须以字母开头', 'error'); return; }
-  if (username.length < 3 || username.length > 16) { toast('用户名长度 3-16 位', 'error'); return; }
+  if (username.length < 2 || username.length > 20) { toast('用户名长度 2-20 位', 'error'); return; }
   if (!email) { toast('请输入邮箱', 'error'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('邮箱格式不正确', 'error'); return; }
   if (!password) { toast('请输入密码', 'error'); return; }
   if (password.length < 6) { toast('密码至少 6 位', 'error'); return; }
   if (password !== password2) { toast('两次密码不一致', 'error'); return; }
-  if (!tcbAuth) { toast('CloudBase 未就绪，请刷新页面', 'error'); return; }
 
   var btn = document.getElementById('reg-submit');
   btn.disabled = true; btn.textContent = '注册中...';
   try {
-    console.log('[Register] Attempting:', username, email);
-    var regResult = await tcbAuth.signUp({ username: username, password: password, email: email });
-    console.log('[Register] signUp result:', regResult);
-    if (regResult && regResult.error) throw regResult.error;
+    console.log('[SB] Register:', email, username);
+    var resp = await fetch(SB_AUTH + '/signup', {
+      method: 'POST',
+      headers: sbHeaders(),
+      body: JSON.stringify({
+        email: email,
+        password: password,
+        data: {
+          username: username,
+          qq: /^\d{5,11}$/.test(qq) ? qq : ''
+        }
+      })
+    });
+    var data = await resp.json();
+    console.log('[SB] Register resp:', resp.status, data);
 
-    console.log('[Register] Auto-signing in...');
-    var loginResult = await tcbAuth.signInWithPassword({ username: username, password: password });
-    console.log('[Register] signIn result:', loginResult);
-    if (loginResult && loginResult.error) throw loginResult.error;
+    if (!resp.ok) throw { message: data.error_description || data.msg || data.error || ('HTTP ' + resp.status) };
 
-    console.log('[Register] OK, currentUser:', tcbAuth.currentUser ? tcbAuth.currentUser.username : 'null');
+    // Check if email confirmation is needed
+    if (!data.session && !data.access_token) {
+      // User created but needs email confirmation
+      toast('注册成功！请查收邮箱验证邮件后登录。如未收到，请检查垃圾箱。');
+      closeLoginModal();
+      return;
+    }
 
-    if (/^\d{5,11}$/.test(qq)) localStorage.setItem('aiblog_qq', qq);
-
+    // Auto-login (email confirmation disabled)
+    saveSession({ access_token: data.access_token, refresh_token: data.refresh_token, user: data.user });
+    console.log('[SB] Register + Login OK');
     toast('注册成功，已自动登录');
     closeLoginModal();
     updateAdminUI();
     refreshCurrent();
   } catch (e) {
-    console.error('[Register] Error:', e);
-    var errMsg = cloudbaseError(e);
-    if (errMsg.indexOf('Failed to fetch') !== -1 || errMsg.indexOf('NetworkError') !== -1) {
-      toast('网络请求失败，请确认已将 blauervoge1.github.io 加入 CloudBase Web 安全域名白名单', 'error');
+    console.error('[SB] Register error:', e);
+    var msg = sbError(e);
+    if (msg.indexOf('already registered') !== -1 || msg.indexOf('already exists') !== -1) {
+      toast('该邮箱已被注册', 'error');
+    } else if (msg.indexOf('Failed to fetch') !== -1) {
+      toast('网络请求失败，请检查网络连接', 'error');
     } else {
-      toast('注册失败: ' + errMsg, 'error');
+      toast('注册失败: ' + msg, 'error');
     }
   }
   btn.disabled = false; btn.textContent = '注册';
 }
 
-function doLogout() {
-  if (tcbAuth) {
-    tcbAuth.signOut().catch(function() {});
-    localStorage.removeItem('aiblog_qq');
+/* ================================================================
+   Auth: Logout
+   ================================================================ */
+async function doLogout() {
+  if (_sbSession && _sbSession.access_token) {
+    try {
+      await fetch(SB_AUTH + '/logout', {
+        method: 'POST',
+        headers: sbHeaders(_sbSession.access_token)
+      });
+    } catch(e) {}
   }
+  clearSession();
   document.getElementById('user-badge').classList.remove('open');
   updateAdminUI();
   refreshCurrent();
@@ -611,10 +664,13 @@ function doLogout() {
 /* ================================================================
    Posts: Fetch from GitHub Issues
    ================================================================ */
-let currentPage = 1;
-let currentView = 'list'; // 'list' or 'detail'
-let currentPost = null;
-let allPosts = [];
+var REPO = 'BlauerVoge1/aiblog';
+var ISSUES_API = 'https://api.github.com/repos/' + REPO + '/issues';
+var PER_PAGE = 10;
+var currentPage = 1;
+var currentView = 'list';
+var currentPost = null;
+var allPosts = [];
 
 function getToken() { return localStorage.getItem('gh_token') || ''; }
 
@@ -658,13 +714,11 @@ function parsePostMeta(body) {
 function renderPostList() {
   currentView = 'list';
   currentPost = null;
-
   var html = '<div class="admin-controls" id="admin-controls"></div>';
   html += '<div class="loading" id="post-loading">加载文章列表...</div>';
   html += '<div id="post-list"></div>';
   html += '<div class="page-info" id="page-info"></div>';
   document.getElementById('main').innerHTML = html;
-
   updateAdminUI();
   loadPosts(currentPage);
 }
@@ -674,7 +728,6 @@ async function loadPosts(page) {
   var loading = document.getElementById('post-loading');
   var listEl = document.getElementById('post-list');
   var pageEl = document.getElementById('page-info');
-
   loading.style.display = '';
   listEl.innerHTML = '';
   pageEl.innerHTML = '';
@@ -761,7 +814,7 @@ function showPostDetail(number) {
     '</div>';
 
   updateAdminUI();
-  fetchCommentsFromTCB(issue.number);
+  fetchComments(postIdFromIssue(issue));
 }
 
 function showPostList() {
@@ -778,24 +831,37 @@ function refreshCurrent() {
   }
 }
 
+function postIdFromIssue(issue) {
+  return String(issue.number);
+}
+
 /* ================================================================
-   Comments: CloudBase NoSQL
+   Comments: Supabase REST API
    ================================================================ */
-async function fetchCommentsFromTCB(postId) {
+var COMMENTS_TABLE = 'comments';
+
+async function fetchComments(postSlug) {
   var listEl = document.getElementById('comment-list');
   var countEl = document.getElementById('comment-count');
-  if (!tcbDb) {
-    listEl.innerHTML = '<div class="empty">评论系统未就绪</div>';
-    return;
-  }
 
   try {
-    var res = await tcbDb.collection('blog_comments')
-      .where({ post_id: String(postId) })
-      .orderBy('created_at', 'asc')
-      .get();
+    var url = SB_REST + '/' + COMMENTS_TABLE
+      + '?post_slug=eq.' + encodeURIComponent(postSlug)
+      + '&select=*'
+      + '&order=created_at.asc';
 
-    var comments = (res && res.data) || [];
+    var resp = await fetch(url, {
+      headers: { 'apikey': SB_KEY }
+    });
+
+    if (!resp.ok) {
+      var errText = await resp.text();
+      throw { message: 'HTTP ' + resp.status + ' ' + errText };
+    }
+
+    var comments = await resp.json();
+    console.log('[SB] Comments loaded:', comments.length);
+
     countEl.textContent = comments.length;
 
     if (!comments.length) {
@@ -808,7 +874,7 @@ async function fetchCommentsFromTCB(postId) {
         if (/^\d{5,11}$/.test(qq)) {
           avatarHtml = '<img src="https://q.qlogo.cn/headimg_dl?dst_uin=' + qq + '&spec=100" alt="">';
         } else {
-          avatarHtml = (c.username || '?').charAt(0).toUpperCase();
+          avatarHtml = (c.display_name || '?').charAt(0).toUpperCase();
         }
         var time = '';
         try { time = new Date(c.created_at).toLocaleString('zh-CN'); } catch(e) {}
@@ -816,7 +882,7 @@ async function fetchCommentsFromTCB(postId) {
           '<div class="comment-item">' +
           '<div class="comment-header">' +
           '<div class="comment-avatar">' + avatarHtml + '</div>' +
-          '<span class="comment-author">' + escapeHtml(c.username || '匿名') + '</span>' +
+          '<span class="comment-author">' + escapeHtml(c.display_name || '匿名') + '</span>' +
           '<span class="comment-time">' + time + '</span>' +
           '</div>' +
           '<div class="comment-body">' + escapeHtml(c.body || '') + '</div>' +
@@ -825,21 +891,20 @@ async function fetchCommentsFromTCB(postId) {
       listEl.innerHTML = html;
     }
 
-    // Add comment form
-    addCommentForm(postId);
+    addCommentForm(postSlug);
 
   } catch (e) {
-    console.error('Fetch comments error:', e);
-    var errMsg = cloudbaseError(e).toLowerCase();
-    if (errMsg.indexOf('unauthenticated') !== -1 || errMsg.indexOf('auth') !== -1 || errMsg.indexOf('not logged in') !== -1 || errMsg.indexOf('not login') !== -1) {
-      listEl.innerHTML = '<div style="padding:12px;color:var(--text-light);font-size:.88rem;"><a onclick="showLoginModal()" style="color:var(--accent);cursor:pointer;">登录</a>后查看评论</div>';
+    console.error('[SB] Fetch comments error:', e);
+    var msg = sbError(e).toLowerCase();
+    if (msg.indexOf('does not exist') !== -1 || msg.indexOf('404') !== -1) {
+      listEl.innerHTML = '<div class="empty">评论表未创建，请先在 Supabase 中运行建表 SQL</div>';
     } else {
-      listEl.innerHTML = '<div class="empty">加载评论失败: ' + cloudbaseError(e) + '</div>';
+      listEl.innerHTML = '<div class="empty">加载评论失败: ' + sbError(e) + '</div>';
     }
   }
 }
 
-function addCommentForm(postId) {
+function addCommentForm(postSlug) {
   var section = document.getElementById('comments-section');
   var formDiv = document.createElement('div');
   formDiv.className = 'comment-form';
@@ -850,7 +915,7 @@ function addCommentForm(postId) {
       '<textarea id="comment-input" placeholder="写下你的评论..."></textarea>' +
       '<div class="comment-actions">' +
       '<span class="comment-hint">以 <strong>' + escapeHtml(getNickname()) + '</strong> 的身份评论</span>' +
-      '<button class="submit-btn" id="comment-submit" onclick="submitComment(\'' + postId + '\')">发表评论</button>' +
+      '<button class="submit-btn" id="comment-submit" onclick="submitComment(\'' + postSlug + '\')">发表评论</button>' +
       '</div>';
   } else {
     formDiv.innerHTML =
@@ -862,9 +927,8 @@ function addCommentForm(postId) {
   section.appendChild(formDiv);
 }
 
-async function submitComment(postId) {
+async function submitComment(postSlug) {
   if (!isLoggedIn()) { toast('请先登录', 'error'); showLoginModal(); return; }
-  if (!tcbDb) { toast('数据库未就绪', 'error'); return; }
 
   var input = document.getElementById('comment-input');
   var body = input.value.trim();
@@ -873,21 +937,37 @@ async function submitComment(postId) {
   var btn = document.getElementById('comment-submit');
   btn.disabled = true; btn.textContent = '发表中...';
 
+  var token = getAccessToken();
   try {
-    var result = await tcbDb.collection('blog_comments').add({
-      post_id: String(postId),
-      username: getNickname(),
-      qq: getQQ(),
-      body: body,
-      created_at: new Date().toISOString()
+    var resp = await fetch(SB_REST + '/' + COMMENTS_TABLE, {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        post_slug: postSlug,
+        user_id: getUserId(),
+        display_name: getNickname(),
+        qq: getQQ(),
+        body: body,
+        created_at: new Date().toISOString()
+      })
     });
-    if (result && result.error) throw result.error;
+
+    if (!resp.ok) {
+      var errData = await resp.json().catch(function() { return {}; });
+      throw { message: errData.message || errData.msg || ('HTTP ' + resp.status) };
+    }
+
     input.value = '';
     toast('评论发表成功');
-    fetchCommentsFromTCB(postId);
+    fetchComments(postSlug);
   } catch (e) {
-    console.error('Comment error:', e);
-    toast('评论失败: ' + cloudbaseError(e), 'error');
+    console.error('[SB] Comment error:', e);
+    toast('评论失败: ' + sbError(e), 'error');
   }
   btn.disabled = false; btn.textContent = '发表评论';
 }
@@ -903,23 +983,32 @@ function escapeHtml(str) {
 }
 
 /* ================================================================
-   Session Recovery & Init
+   Init
    ================================================================ */
 (function init() {
-  // Try CloudBase session recovery
-  if (tcbAuth) {
-    tcbAuth.getLoginState().then(function(state) {
-      if (state) {
-        console.log('[TCB] Session recovered:', state.user ? state.user.username : '?');
-      } else {
-        console.log('[TCB] No session');
-      }
-      renderPostList();
+  // Restore session and verify it's still valid
+  if (_sbSession && _sbSession.access_token) {
+    fetch(SB_AUTH + '/user', {
+      headers: sbHeaders(_sbSession.access_token)
+    }).then(function(resp) {
+      return resp.json().then(function(data) {
+        if (resp.ok && data.id) {
+          _sbSession.user = data;
+          saveSession(_sbSession);
+          console.log('[SB] Session restored:', data.email);
+        } else {
+          console.log('[SB] Session expired');
+          clearSession();
+        }
+        renderPostList();
+      });
     }).catch(function() {
-      console.log('[TCB] Session check failed');
+      console.log('[SB] Session check failed');
+      clearSession();
       renderPostList();
     });
   } else {
+    console.log('[SB] No session to restore');
     renderPostList();
   }
 })();
