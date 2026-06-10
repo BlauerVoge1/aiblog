@@ -591,6 +591,14 @@ async function addComment(number) {
   if (!body) return;
 
   if (!isLoggedIn()) { alert('请先登录才能评论'); showLoginModal(); return; }
+ 
+  // Check CloudBase auth specifically for database write
+  if (!tcbAuth || !tcbAuth.currentUser) {
+    alert('需要注册账号才能评论，请点击登录 → 注册');
+    showLoginModal();
+    switchLoginTab('register');
+    return;
+  }
 
   if (!tcbDb) { alert('数据库未初始化，请刷新页面'); return; }
 
@@ -605,8 +613,13 @@ async function addComment(number) {
     input.value = '';
     showPost(number, true);
   } catch (e) {
-    alert('评论失败: ' + (e.message || e));
-    console.error(e);
+    const msg = e.message || e.code || String(e);
+    if (msg.includes('PERMISSION_DENIED') || msg.includes('ACCESS_TOKEN') || msg.includes('unauthenticated') || msg.includes('auth')) {
+      alert('评论失败: 请先登录后再评论');
+    } else {
+      alert('评论失败: ' + msg);
+    }
+    console.error('Comment error:', e);
   }
 }
 
