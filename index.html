@@ -599,6 +599,18 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
+// 从评论 body 中提取显示名和纯内容
+// 格式: **显示名**：正文 或 **显示名**（QQ:123）：正文
+function parseCommentMeta(body) {
+  const m = body.match(/^\*\*(.+?)\*\*(?:（QQ:\d+）)?[：:]/);
+  if (m) {
+    const displayName = m[1];
+    const content = body.substring(m[0].length).trim();
+    return { displayName, content };
+  }
+  return { displayName: '匿名', content: body };
+}
+
 function renderList(data) {
   const items = data.items;
   page = getParam('page') ? parseInt(getParam('page')) : 1;
@@ -685,12 +697,13 @@ async function renderPost(issue, comments) {
     html += `<p style="color:var(--text-light);font-size:.9rem;">暂无评论</p>`;
   } else {
     comments.forEach(c => {
+      const meta = parseCommentMeta(c.body || '');
       let cbody = '';
-      try { cbody = marked.parse(c.body || ''); } catch (e) { cbody = escapeHtml(c.body || ''); }
+      try { cbody = marked.parse(meta.content); } catch (e) { cbody = escapeHtml(meta.content); }
       html += `
         <div class="comment">
           <div class="comment-header">
-            <strong>${escapeHtml(c.user.login)}</strong> · ${timeAgo(c.created_at)}
+            <strong>${escapeHtml(meta.displayName)}</strong> · ${timeAgo(c.created_at)}
           </div>
           <div class="comment-body">${cbody}</div>
         </div>`;
