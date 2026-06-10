@@ -390,7 +390,7 @@ function closeLoginModal() {
 }
 
 function switchLoginTab(tab) {
-  const tabs = { 'login': 0, 'register': 0, 'qq': 2 };
+  const tabs = { 'login': 0, 'register': 1, 'qq': 2 };
   document.querySelectorAll('#login-modal .tab').forEach((t, i) => {
     t.classList.toggle('active', tabs[tab] === i);
   });
